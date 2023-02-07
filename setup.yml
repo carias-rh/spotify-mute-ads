@@ -10,10 +10,9 @@
     - name: Ensure dependencies are installed.
       package:
         name:
-          - oathtool
           - epel-release
           - python3-pip
-          - firefox.x86_64
+         # - firefox.x86_64
           - chromium.x86_64
         state: present
       become: true
@@ -30,7 +29,7 @@
         url: "{{ item }}"
         dest: "/tmp/{{ item | split('/')| last }}"
       loop:
-        - "https://github.com/mozilla/geckodriver/releases/download/v0.32.0/geckodriver-v0.32.0-linux64.tar.gz"
+      #  - "https://github.com/mozilla/geckodriver/releases/download/v0.32.0/geckodriver-v0.32.0-linux64.tar.gz"
         - "https://chromedriver.storage.googleapis.com/108.0.5359.71/chromedriver_linux64.zip"
 
     - name: Extract selenium drivers into /usr/bin/
@@ -38,7 +37,7 @@
         src: "/tmp/{{ item }}"
         dest: "/usr/bin/"
       loop:
-        - geckodriver-v0.32.0-linux64.tar.gz
+      #  - geckodriver-v0.32.0-linux64.tar.gz
         - chromedriver_linux64.zip
       become: true
 
