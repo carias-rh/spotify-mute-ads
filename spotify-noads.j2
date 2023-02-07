@@ -1,0 +1,53 @@
+#!/usr/bin/python3
+
+import os
+import time
+from selenium import webdriver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+
+os.popen("for process in $(ps -ef |grep spotify-no-ads-profile |grep -v 'grep' |awk '{print $2}'); do kill $process; done").read()
+
+options = webdriver.ChromeOptions()
+options.add_argument('--ignore-certificate-errors')
+options.add_argument("--window-size=2110,1234")
+options.add_argument("--user-data-dir={{ ansible_env.HOME}}/.config/google-chrome/spotify-no-ads-profile")
+options.add_argument("--enable-extensions")
+
+# Define the webdriver to use.
+# Chrome webdriver
+driver = webdriver.Chrome(options=options)
+
+# Go to the website
+def go_to_main_site():
+    driver.get('https://open.spotify.com/')
+    time.sleep(1)
+
+def mute_add():
+    audio_enabled = True
+    try:
+        now_playing = WebDriverWait(driver, 5).until(
+            EC.element_to_be_clickable((By.XPATH, '/html/body/div[4]/div/div[2]/nav/div[1]/div[3]/div[2]/div/a'))).get_attribute("aria-label")
+
+        if "Advertisement" in now_playing and audio_enabled:
+            print("Mute audio")
+            os.popen("amixer set Master mute").read()
+            audio_enabled = False
+
+            while not audio_enabled:
+                try:
+                    WebDriverWait(driver, 1).until(
+                         EC.element_to_be_clickable((By.XPATH, '/html/body/div[4]/div/div[2]/nav/div[1]/div[3]/div[2]/div/a'))).get_attribute("aria-label")
+                except:
+                    print("Enable audio")
+                    os.popen("amixer set Master unmute").read()
+                    audio_enabled = True
+    except:
+        pass
+
+
+go_to_main_site()
+
+while True:
+    mute_add()

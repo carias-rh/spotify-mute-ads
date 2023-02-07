@@ -1,0 +1,62 @@
+- name: Spotify no-ads installer
+  hosts: localhost
+
+  tasks:
+    - name: Install epel repository
+      command: dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm -y
+      ignore_errors: true
+      become: true
+
+    - name: Ensure dependencies are installed.
+      package:
+        name:
+          - oathtool
+          - epel-release
+          - python3-pip
+          - firefox.x86_64
+          - chromium.x86_64
+        state: present
+      become: true
+      ignore_errors: true
+
+    - name: Install Selenium with pip
+      ansible.builtin.pip:
+        name: selenium
+        executable: pip3
+      become: true
+
+    - name: Download selenium drivers
+      ansible.builtin.get_url:
+        url: "{{ item }}"
+        dest: "/tmp/{{ item | split('/')| last }}"
+      loop:
+        - "https://github.com/mozilla/geckodriver/releases/download/v0.32.0/geckodriver-v0.32.0-linux64.tar.gz"
+        - "https://chromedriver.storage.googleapis.com/108.0.5359.71/chromedriver_linux64.zip"
+
+    - name: Extract selenium drivers into /usr/bin/
+      ansible.builtin.unarchive:
+        src: "/tmp/{{ item }}"
+        dest: "/usr/bin/"
+      loop:
+        - geckodriver-v0.32.0-linux64.tar.gz
+        - chromedriver_linux64.zip
+      become: true
+
+    - name: Generate template script
+      ansible.builtin.template:
+        src: "{{ item }}"
+        dest: "/tmp/{{ item | splitext | first }}"
+        mode: 0755
+      loop:
+        - spotify-noads.j2
+      tags: scripts
+
+    - name: Move script /usr/bin/
+      ansible.builtin.copy:
+        src: "/tmp/{{ item }}"
+        dest: "/usr/bin/{{ item }}"
+        mode: 0755
+      loop:
+        - spotify-noads
+      become: true
+      tags: scripts
