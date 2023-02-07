@@ -27,3 +27,5 @@ $ which spotify-noads
 
 $  spotify-noads &
 ```
+
+While the ads are playing your system will be muted. Enjoy :)
