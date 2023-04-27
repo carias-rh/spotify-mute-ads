@@ -27,9 +27,7 @@ def go_to_main_site():
 def mute_add():
     audio_enabled = True
     try:
-        now_playing = WebDriverWait(driver, 5).until(
-            EC.element_to_be_clickable((By.XPATH, '/html/body/div[4]/div/div[2]/nav/div[1]/div[3]/div[2]/div/a'))).get_attribute("aria-label")
-
+        now_playing = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '//a[@aria-label="Advertisement"]'))).get_attribute("aria-label")
         if "Advertisement" in now_playing and audio_enabled:
             print("Mute audio")
             os.popen("amixer set Master mute").read()
@@ -38,7 +36,7 @@ def mute_add():
             while not audio_enabled:
                 try:
                     WebDriverWait(driver, 1).until(
-                         EC.element_to_be_clickable((By.XPATH, '/html/body/div[4]/div/div[2]/nav/div[1]/div[3]/div[2]/div/a'))).get_attribute("aria-label")
+                         EC.presence_of_element_located((By.XPATH, '//a[@aria-label="Advertisement"]'))).get_attribute("aria-label")
                 except:
                     print("Enable audio")
                     os.popen("amixer set Master unmute").read()

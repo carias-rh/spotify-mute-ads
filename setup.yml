@@ -43,19 +43,19 @@
 
     - name: Generate template script
       ansible.builtin.template:
-        src: "{{ item }}"
-        dest: "/tmp/{{ item | splitext | first }}"
+        src: "spotify-noads.py.j2"
+        dest: "spotify-noads.py"
         mode: 0755
-      loop:
-        - spotify-noads.j2
+      tags: scripts
+
+    - name: Generate executable
+      ansible.builtin.shell: "pyinstaller --onefile spotify-noads.py"
       tags: scripts
 
     - name: Move script /usr/bin/
       ansible.builtin.copy:
-        src: "/tmp/{{ item }}"
-        dest: "/usr/bin/{{ item }}"
+        src: "{{ playbook_dir }}/dist/spotify-noads"
+        dest: "/usr/bin/spotify-noads"
         mode: 0755
-      loop:
-        - spotify-noads
       become: true
       tags: scripts
